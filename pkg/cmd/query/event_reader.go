@@ -5,7 +5,9 @@ import (
 	"compress/gzip"
 	"log"
 	"os"
+	"path"
 	"sort"
+	"strings"
 
 	"github.com/mfojtik/audit-tool/pkg/audit/filter"
 
@@ -20,13 +22,19 @@ func decodeAuditEvents(name string, filters ...filter.AuditFilters) ([]*auditv1.
 	}
 	defer f.Close()
 
-	gzipReader, err := gzip.NewReader(f)
-	if err != nil {
-		return nil, err
+	var fileScanner *bufio.Scanner
+	switch strings.ToLower(path.Ext(name)) {
+	case ".gz":
+		gzipReader, err := gzip.NewReader(f)
+		if err != nil {
+			return nil, err
+		}
+		defer gzipReader.Close()
+		fileScanner = bufio.NewScanner(gzipReader)
+	default:
+		fileScanner = bufio.NewScanner(f)
 	}
-	defer gzipReader.Close()
 
-	fileScanner := bufio.NewScanner(gzipReader)
 	fileScanner.Split(bufio.ScanLines)
 	events := []*auditv1.Event{}
 
