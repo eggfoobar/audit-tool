@@ -6,6 +6,7 @@ import (
 
 	"github.com/pterm/pterm"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	auditv1 "k8s.io/apiserver/pkg/apis/audit/v1"
 )
 
@@ -46,5 +47,12 @@ func printElapsedTime(e *auditv1.Event) string {
 }
 
 func printEvent(e *auditv1.Event) string {
+	defaultNilValues(e)
 	return pterm.Sprintf("[ %s ][ %s ][ %3s ] %s [%s]%s", printTime(e.RequestReceivedTimestamp.Time), pterm.NewStyle(pterm.FgLightWhite).Sprintf("%6s", strings.ToUpper(e.Verb)), printResponseCode(e.ResponseStatus.Code), printRequestURI(e.RequestURI), printUser(e), printElapsedTime(e))
+}
+
+func defaultNilValues(e *auditv1.Event) {
+	if e.ResponseStatus == nil {
+		e.ResponseStatus = &metav1.Status{}
+	}
 }

@@ -41,7 +41,7 @@ func NewAuditDirReader(dir string) (*AuditDirReader, error) {
 		}
 		auditFiles = append(auditFiles, auditFile{
 			name:      info.Name(),
-			filePath:  filepath.Join(dir, info.Name()),
+			filePath:  path,
 			timestamp: parseTimeFromRotatedAuditFile(info.Name(), info.ModTime()),
 		})
 		return nil
